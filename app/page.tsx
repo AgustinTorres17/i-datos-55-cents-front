@@ -228,34 +228,6 @@ export default function Home() {
       position: "SF",
       image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1628369.png",
     },
-    {
-      id: 10,
-      name: "Anthony Davis",
-      team: "Los Angeles Lakers",
-      position: "PF",
-      image: "https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png",
-    },
-    {
-      id: 11,
-      name: "Kyrie Irving",
-      team: "Dallas Mavericks",
-      position: "PG",
-      image: "https://cdn.nba.com/headshots/nba/latest/1040x760/202681.png",
-    },
-    {
-      id: 12,
-      name: "Damian Lillard",
-      team: "Milwaukee Bucks",
-      position: "PG",
-      image: "https://cdn.nba.com/headshots/nba/latest/1040x760/203081.png",
-    },
-    {
-      id: 13,
-      name: "Trae Young",
-      team: "Atlanta Hawks",
-      position: "PG",
-      image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629027.png",
-    }
   ];
 
   return (

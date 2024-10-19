@@ -45,7 +45,7 @@ export const Teams = ({ teams }: TeamCardProps) => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <TeamCard logo={team.logo} name={team.name} />
+              <TeamCard logo={team.logo} name={team.name} id={team.id} />
             </motion.div>
           ))}
         </AnimatePresence>

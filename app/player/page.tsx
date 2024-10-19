@@ -1,11 +1,15 @@
+// PlayerProfile.tsx
+
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Calendar, Trophy, User } from "lucide-react";
+import { BarChart, Trophy } from "lucide-react";
 import { Leading } from "@/components/typography/Leading";
+import { fetchPlayerData } from "@/app/services/playerService";
+import { useSearchParams } from "next/navigation";
 
 interface PlayerStats {
   points: number;
@@ -38,36 +42,6 @@ interface PlayerInfo {
   trophies: boolean;
   trophyYear: number[];
 }
-
-const playerInfo: PlayerInfo = {
-  id: 1,
-  name: "Lebron James",
-  team: "Los Angeles Lakers",
-  position: "Small Forward",
-  number: "6",
-  height: "6'9\"",
-  weight: "250 lbs",
-  born: "December 30, 1984",
-  stats: {
-    points: 27.2,
-    assists: 7.3,
-    rebounds: 7.5,
-    offRebounds: 1.2,
-    defRebounds: 6.3,
-    steals: 1.6,
-    blocks: 0.7,
-    turnovers: 4.0,
-    fouls: 2.3,
-    minutes: 36.4,
-    fieldGoals: "44.0 %",
-    threePoints: "35.0 %",
-    freeThrows: "85.0 %",
-  },
-  hasMvp: true,
-  mvpYear: [2009, 2010, 2012, 2013, 2016, 2018],
-  trophies: true,
-  trophyYear: [2012, 2013, 2016, 2020],
-};
 
 const StatCard: React.FC<{ title: string; value: number | string }> = ({
   title,
@@ -134,8 +108,36 @@ const TrophyCard: React.FC<{ trophies: Trophy[] }> = ({ trophies }) => {
 };
 
 export default function PlayerProfile() {
+  const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  console.log(id);
+
+  useEffect(() => {
+    if (id) {
+      const getPlayerData = async () => {
+        const data = await fetchPlayerData(Number(id));
+        setPlayerInfo(data);
+      };
+      getPlayerData();
+    }
+  }, [id]);
+
+  if (!playerInfo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8-6Q5OBwYshFTPhyy1Ncmsleqhy4omBk5zw&s"
+          alt="Loading logo"
+          className="w-24 h-24 mb-4 animate-bounce rounded-full"
+        />
+        <p className="text-lg font-semibold text-white">Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="h-full overflow-hidden bg-[#121212] text-white p-8">
+    <div className="h-full overflow-auto bg-[#121212] text-white p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -153,8 +155,8 @@ export default function PlayerProfile() {
           />
           <div>
             <h1 className="text-4xl font-bold mb-2">{playerInfo.name}</h1>
-            <p className="text-xl text-gray-400 mb-1">{playerInfo.team}</p>
-            <p className="text-lg text-gray-500">
+            <p className="text-xl text-white mb-1">{playerInfo.team}</p>
+            <p className="text-lg text-zinc-500">
               {playerInfo.position} | #{playerInfo.number}
             </p>
           </div>
@@ -193,13 +195,6 @@ export default function PlayerProfile() {
               <StatCard title="3P%" value={playerInfo.stats.threePoints} />
               <StatCard title="FT%" value={playerInfo.stats.freeThrows} />
             </div>
-          </TabsContent>
-          <TabsContent value="schedule" className="mt-6">
-            <Card className="bg-[#1e1e1e] border-none">
-              <CardContent className="p-6">
-                <p>Próximos partidos se mostrarán aquí.</p>
-              </CardContent>
-            </Card>
           </TabsContent>
           <TabsContent value="achievements" className="mt-6">
             <Card className="bg-[#1e1e1e] border-none ">

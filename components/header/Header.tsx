@@ -2,11 +2,14 @@ import React from "react";
 import { Leading } from "../typography/Leading";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 export const Header = () => {
   return (
     <div className="w-full p-5 bg-header flex justify-between sticky top-0 z-50">
-      <Leading variant={"h1"}>NBA Stats</Leading>
+      <Link href={"/"}>
+        <Leading variant={"h1"}>NBA Stats</Leading>
+      </Link>
       <div className="relative">
         <Input
           type="text"

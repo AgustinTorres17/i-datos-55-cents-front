@@ -46,7 +46,7 @@ export const Players = ({ players }: PlayersProps) => {
               transition={{ duration: 0.3 }}
             >
               {/* Assuming a PlayerCard component exists, similar to TeamCard */}
-              <PlayerCard photo={player.image} name={player.name} position={player.position} team={player.team} />
+              <PlayerCard photo={player.image} name={player.name} id={player.id} team={player.team} />
             </motion.div>
           ))}
         </AnimatePresence>

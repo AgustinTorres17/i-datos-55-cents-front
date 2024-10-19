@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Trophy, User } from "lucide-react";
 import { Leading } from "@/components/typography/Leading";
+import { fetchTeamData } from "@/app/services/teamService";
+import { getTeamColor } from "../helpers/teamColorHelper";
 
 interface PlayerStats {
   points: number;
@@ -44,166 +47,6 @@ interface TeamInfo {
   championships: number[];
 }
 
-const teamInfo: TeamInfo = {
-  id: 1,
-  name: "Los Angeles Lakers",
-  logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Los_Angeles_Lakers_logo.svg/1200px-Los_Angeles_Lakers_logo.svg.png",
-  players: {
-    2023: [
-      {
-        id: 1,
-        name: "LeBron James",
-        position: "SF",
-        number: "6",
-        stats: { points: 27.2, assists: 7.3, rebounds: 7.5 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png",
-      },
-      {
-        id: 2,
-        name: "Anthony Davis",
-        position: "PF",
-        number: "3",
-        stats: { points: 25.9, assists: 2.6, rebounds: 12.5 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png",
-      },
-      {
-        id: 3,
-        name: "D'Angelo Russell",
-        position: "PG",
-        number: "1",
-        stats: { points: 17.8, assists: 6.1, rebounds: 3.0 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1626156.png",
-      },
-      {
-        id: 4,
-        name: "Austin Reaves",
-        position: "SG",
-        number: "15",
-        stats: { points: 13.0, assists: 3.4, rebounds: 3.0 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1630559.png",
-      },
-      {
-        id: 5,
-        name: "Rui Hachimura",
-        position: "PF",
-        number: "28",
-        stats: { points: 11.2, assists: 0.9, rebounds: 4.5 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629060.png",
-      },
-      {
-        id: 6,
-        name: "Jarred Vanderbilt",
-        position: "PF",
-        number: "2",
-        stats: { points: 7.9, assists: 1.6, rebounds: 7.5 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629020.png",
-      },
-    ],
-    2022: [
-      {
-        id: 1,
-        name: "LeBron James",
-        position: "SF",
-        number: "6",
-        stats: { points: 30.3, assists: 6.2, rebounds: 8.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png",
-      },
-      {
-        id: 2,
-        name: "Russell Westbrook",
-        position: "PG",
-        number: "0",
-        stats: { points: 18.5, assists: 7.1, rebounds: 7.4 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/201566.png",
-      },
-      {
-        id: 3,
-        name: "Anthony Davis",
-        position: "PF",
-        number: "3",
-        stats: { points: 23.2, assists: 3.1, rebounds: 9.9 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png",
-      },
-      {
-        id: 4,
-        name: "Malik Monk",
-        position: "SG",
-        number: "11",
-        stats: { points: 13.8, assists: 2.9, rebounds: 3.4 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1628370.png",
-      },
-      {
-        id: 5,
-        name: "Carmelo Anthony",
-        position: "PF",
-        number: "7",
-        stats: { points: 13.3, assists: 1.0, rebounds: 4.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/2546.png",
-      },
-      {
-        id: 6,
-        name: "Talen Horton-Tucker",
-        position: "SG",
-        number: "5",
-        stats: { points: 10.0, assists: 2.7, rebounds: 3.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629659.png",
-      },
-      {
-        id: 7,
-        name: "Dwight Howard",
-        position: "C",
-        number: "39",
-        stats: { points: 6.2, assists: 0.6, rebounds: 5.9 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/2730.png",
-      },
-      {
-        id: 8,
-        name: "Avery Bradley",
-        position: "SG",
-        number: "20",
-        stats: { points: 6.4, assists: 0.8, rebounds: 2.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/202340.png",
-      },
-      {
-        id: 9,
-        name: "Stanley Johnson",
-        position: "SF",
-        number: "14",
-        stats: { points: 6.7, assists: 1.7, rebounds: 3.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1626169.png",
-      },
-      {
-        id: 10,
-        name: "Wayne Ellington",
-        position: "SG",
-        number: "2",
-        stats: { points: 6.7, assists: 0.7, rebounds: 1.8 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/201961.png",
-      },
-      {
-        id: 11,
-        name: "Kent Bazemore",
-        position: "SF",
-        number: "9",
-        stats: { points: 3.4, assists: 0.9, rebounds: 1.8 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/203145.png",
-      },
-      {
-        id: 12,
-        name: "Austin Reaves",
-        position: "SG",
-        number: "15",
-        stats: { points: 7.3, assists: 1.8, rebounds: 3.2 },
-        image: "https://cdn.nba.com/headshots/nba/latest/1040x760/1630559.png",
-      },
-    ],
-  },
-
-  championships: [
-    2020, 2010, 2009, 2002, 2001, 2000, 1988, 1987, 1985, 1982, 1980, 1972,
-  ],
-};
-
 const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
   <Card className="bg-[#1e1e1e] border-none hover:bg-[#2a2a2a] transition-all duration-300 group">
     <img
@@ -211,7 +54,7 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
       alt={player.name}
       className="w-full h-48 object-cover"
     />
-    <CardContent className={`p-4 bg-gray-500 rounded-b-xl`}>
+    <CardContent className={`p-4 bg-zinc-900 rounded-b-xl`}>
       <h3 className="text-lg font-semibold text-white mb-1">{player.name}</h3>
       <p className="text-sm text-gray-400">
         {player.position} | #{player.number}
@@ -220,8 +63,8 @@ const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
   </Card>
 );
 
-const PlayerStatsDialog: React.FC<{ player: Player }> = ({ player }) => {
-  const teamBackground = "bg-yellow-400";
+const PlayerStatsDialog: React.FC<{ player: Player, year: number, teamId: number }> = ({ player, year, teamId }) => {
+  const teamBackground = getTeamColor(teamId);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -231,7 +74,7 @@ const PlayerStatsDialog: React.FC<{ player: Player }> = ({ player }) => {
       </DialogTrigger>
       <DialogContent className="bg-[#1e1e1e] text-white flex flex-col items-center">
         <DialogHeader>
-          <DialogTitle>{player.name} - Stats</DialogTitle>
+          <DialogTitle>{player.name} - {year} Stats</DialogTitle>
         </DialogHeader>
         <div
           className={`w-48 h-48 rounded-full ${teamBackground} overflow-hidden`}
@@ -293,10 +136,36 @@ const ChampionshipCard: React.FC<{ championships: number[] }> = ({
 );
 
 export default function TeamProfile() {
+  const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
   const [selectedYear, setSelectedYear] = useState(2023);
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  useEffect(() => {
+    if (id) {
+      const getTeamData = async () => {
+        const data = await fetchTeamData(Number(id), selectedYear);
+        setTeamInfo(data);
+      };
+      getTeamData();
+    }
+  }, [id, selectedYear]);
+
+  if (!teamInfo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8-6Q5OBwYshFTPhyy1Ncmsleqhy4omBk5zw&s"
+          alt="Loading logo"
+          className="w-24 h-24 mb-4 animate-bounce rounded-full"
+        />
+        <p className="text-lg font-semibold text-white">Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full  bg-[#121212] text-white p-8">
+    <div className="h-full bg-[#121212] text-white p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -352,7 +221,7 @@ export default function TeamProfile() {
           <TabsContent value="team" className="mt-6 w-full">
             <div className="grid grid-cols-4 gap-4">
               {teamInfo.players[selectedYear].map((player) => (
-                <PlayerStatsDialog key={player.id} player={player} />
+                <PlayerStatsDialog key={player.id} player={player} year={selectedYear} teamId={Number(id)}/>
               ))}
             </div>
           </TabsContent>
