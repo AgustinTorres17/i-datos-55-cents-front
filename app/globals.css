@@ -2,9 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  min-width: 0;
+  font: inherit;
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+svg {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  --sb-track-color: #55555500;
+  --sb-thumb-color: #333333;
+  --sb-size: 9px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+
+
 
 @layer utilities {
   .text-balance {
@@ -16,4 +55,18 @@ body {
   :root {
     --radius: 0.5rem;
   }
+  *::-webkit-scrollbar {
+    width: var(--sb-size);
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 3px;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 3px;
+  }
+  
 }
