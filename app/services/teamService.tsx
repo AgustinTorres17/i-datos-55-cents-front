@@ -1,26 +1,26 @@
 // teamService.tsx
 interface PlayerStats {
-    points: number;
-    assists: number;
-    rebounds: number;
-  }
-  
-  interface Player {
-    id: number;
-    name: string;
-    position: string;
-    number: string;
-    stats: PlayerStats;
-    image: string;
-  }
-  
+  points: number;
+  assists: number;
+  rebounds: number;
+}
+
+interface Player {
+  id: number;
+  name: string;
+  position: string;
+  number: string;
+  stats: PlayerStats;
+  image: string;
+}
+
 interface TeamInfo {
-    id: number;
-    name: string;
-    logo: string;
-    players: { [year: number]: Player[] };
-    championships: number[];
-  }
+  id: number;
+  name: string;
+  logo: string;
+  players: { [year: number]: Player[] };
+  championships: number[];
+}
 
 export const fetchTeamData = async (teamId: number, year: number) => {
   console.log(`Fetching team data for team ${teamId} in year ${year}`);
@@ -193,4 +193,17 @@ export const fetchTeamData = async (teamId: number, year: number) => {
   };
 
   return teamInfo;
+};
+
+export const fetchBestTeams = async () => {
+  try {
+    const response = await fetch("http://localhost:31234/api/teams");
+    const data = await response.json();
+    const sortedData = data.sort((a: TeamInfo, b: TeamInfo) => {
+      return a.id - b.id;
+    });
+    return sortedData;
+  } catch (error) {
+    console.error("Error fetching best teams", error);
+  }
 };

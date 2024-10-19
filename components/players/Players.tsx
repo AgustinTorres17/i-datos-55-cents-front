@@ -10,13 +10,11 @@ interface PlayersProps {
 }
 
 export const Players = ({ players }: PlayersProps) => {
-  const [showAllPlayers, setShowAllPlayers] = useState(false);
 
-  const displayedPlayers = showAllPlayers ? players : players.slice(0, 10);
 
-  const togglePlayersDisplay = () => {
-    setShowAllPlayers(!showAllPlayers);
-  };
+  const displayedPlayers = players;
+
+
 
   return (
     <div className="space-y-6">
@@ -35,9 +33,9 @@ export const Players = ({ players }: PlayersProps) => {
         }}
       >
         <AnimatePresence>
-          {displayedPlayers.map((player) => (
+          {displayedPlayers && displayedPlayers.map((player) => (
             <motion.div
-              key={player.id}
+              key={player.id_player}
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },
@@ -46,21 +44,11 @@ export const Players = ({ players }: PlayersProps) => {
               transition={{ duration: 0.3 }}
             >
               {/* Assuming a PlayerCard component exists, similar to TeamCard */}
-              <PlayerCard photo={player.image} name={player.name} id={player.id} team={player.team} />
+              <PlayerCard photo={player.nba_id} name={player.name} id={player.id_player} team={player.team} />
             </motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
-      {players.length > 10 && (
-        <div className="flex justify-center mt-6">
-          <Button
-            onClick={togglePlayersDisplay}
-            className="bg-[#3a3a3a] hover:bg-[#4a4a4a] text-white"
-          >
-            {showAllPlayers ? "Mostrar menos jugadores" : "Mostrar todos los jugadores"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

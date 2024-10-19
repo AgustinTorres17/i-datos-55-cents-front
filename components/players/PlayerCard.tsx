@@ -14,7 +14,7 @@ export const PlayerCard = ({ id, photo, name, team }: PlayerCardProps) => {
       <div className="group flex flex-col items-center justify-center p-4 bg-header text-white rounded-md shadow-md gap-4 hover:bg-negro-900 hover:text-gray-50  transition-all duration-200 card-container">
         <div className="w-24 h-24  rounded-full overflow-hidden bg-negro-900 group-hover:shadow-xl group-hover:shadow-header">
           <img
-            src={photo}
+            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${photo}.png`}
             alt={name}
             className="h-full w-full object-cover rounded-t-full"
           />

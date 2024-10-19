@@ -1,13 +1,13 @@
 export type TeamData = {
     id: number;
     name: string;
-    logo: string;
+    imageurl: string;
 }
 
 export type PlayerData = {
-    id: number;
+    id_player: number;
     name: string;
     team: string;
     position: string;
-    image: string;
+    nba_id: string;
 }
