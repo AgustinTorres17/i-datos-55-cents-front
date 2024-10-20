@@ -1,6 +1,44 @@
 import { fetchData } from "../helpers/fetchHelper";
 import { TeamStats, PlayerStats, TeamData } from "../types/types";
 
+interface Player {
+  id_player: number;
+  year: string;
+  team: string;
+  season: string;
+  id: number;
+  name: string;
+  imageurl: string;
+  abreviation: string;
+  position: string;
+  nba_id: string;
+  games: string;
+  games_started: number;
+  minutes_played: number;
+  pts: number;
+  ast: number;
+  trb: number;
+  fg: number;
+  fga: number;
+  fg_percentage: number;
+  three_points: number;
+  three_pa: number;
+  three_p_percentage: number;
+  orb: number;
+  drb: number;
+  stl: number;
+  blk: number;
+  tov: number;
+  pf: number;
+  two_points: number;
+  two_pa: number;
+  two_p_percentage: number;
+  efg_percentage: number;
+  ft: number;
+  fta: number;
+  ft_percentage: number;
+}
+
 
 
 export const fetchTeam = async (teamId: number) => {
@@ -15,9 +53,7 @@ export const fetchTeam = async (teamId: number) => {
 
 export const fetchTeamData = async (teamId: number, year: string) => {
   try {
-    console.log(teamId, year);
     const data: TeamStats = await fetchData(`teams/${teamId}/${year}`);
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching team data", error);
@@ -29,7 +65,7 @@ export const fetchTeamData = async (teamId: number, year: string) => {
 export const fetchTeamPlayersData = async (teamId: number, year: string) => {
   try {
     const data = await fetchData(`teams/${teamId}/${year}/players`);
-    const formattedData: PlayerStats[] = data.map((player: any) => {
+    const formattedData: PlayerStats[] = data.map((player: Player) => {
       return {
         stats: {
           games: parseInt(player.games),
@@ -73,6 +109,7 @@ export const fetchTeamPlayersData = async (teamId: number, year: string) => {
     return formattedData;
   } catch (error) {
     console.error("Error fetching team players data", error);
+    throw error;
   }
 };
 

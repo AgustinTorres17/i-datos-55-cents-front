@@ -1,7 +1,5 @@
 import React from "react";
 import { Leading } from "../typography/Leading";
-import { Input } from "../ui/input";
-import { Search } from "lucide-react";
 import Link from "next/link";
 
 export const Header = () => {

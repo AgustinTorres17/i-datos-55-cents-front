@@ -1,36 +1,20 @@
-// PlayerProfile.tsx
-
 "use client";
-
-import React, { useEffect, useState } from "react";
+export const dynamic = 'force-dynamic';
+import React, { useEffect, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Trophy } from "lucide-react";
 import { Leading } from "@/components/typography/Leading";
-import {
-  fetchPlayerData,
-  fetchPlayerStats,
-} from "@/app/services/playerService";
-import { useSearchParams } from "next/navigation";
+import { fetchPlayerData, fetchPlayerStats } from "@/app/services/playerService";
 import { PlayerData } from "../types/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getYears } from "../helpers/years";
 import { PlayerStats } from "../types/types";
 import { getLabels } from "../helpers/labels";
-import { div } from "framer-motion/client";
 import { Achievements } from "./components/Achievements";
 
-const StatCard: React.FC<{ title: string; value: number | string }> = ({
-  title,
-  value,
-}) => (
+const StatCard: React.FC<{ title: string; value: number | string }> = ({ title, value }) => (
   <Card className="bg-[#1e1e1e] border-none hover:bg-negro-900 transition-all duration-300">
     <CardContent className="p-4">
       <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
@@ -41,12 +25,10 @@ const StatCard: React.FC<{ title: string; value: number | string }> = ({
   </Card>
 );
 
-export default function PlayerProfile() {
+function PlayerProfileContent({ id }: { id: string }) {
   const [playerInfo, setPlayerInfo] = useState<PlayerData | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [selectedYear, setSelectedYear] = useState("2021-2022");
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
   const years: string[] = getYears();
 
   useEffect(() => {
@@ -62,15 +44,8 @@ export default function PlayerProfile() {
   useEffect(() => {
     if (playerInfo && id) {
       const getPlayerStats = async () => {
-        const data: PlayerStats | null = await fetchPlayerStats(
-          Number(id),
-          selectedYear
-        );
-        if (data !== null) {
-          setPlayerStats(data);
-        } else {
-          setPlayerStats(null);
-        }
+        const data: PlayerStats | null = await fetchPlayerStats(Number(id), selectedYear);
+        setPlayerStats(data || null);
       };
       getPlayerStats();
     }
@@ -109,14 +84,9 @@ export default function PlayerProfile() {
           <div>
             <h1 className="text-4xl font-bold mb-2">{playerInfo.name}</h1>
             <p className="text-xl text-white mb-1">{playerInfo.team}</p>
-            <p className="text-lg text-zinc-500">
-              {/* {playerInfo.position} | #{playerInfo.number} */}
-            </p>
+            <p className="text-lg text-zinc-500"></p>
             <div>
-              <Select
-                defaultValue={selectedYear.toString()}
-                onValueChange={(value) => setSelectedYear(value)}
-              >
+              <Select defaultValue={selectedYear} onValueChange={(value) => setSelectedYear(value)}>
                 <SelectTrigger className="w-[180px] bg-negro-900/30">
                   <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
@@ -134,17 +104,11 @@ export default function PlayerProfile() {
 
         <Tabs defaultValue="stats" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-[#1e1e1e] text-zinc-700">
-            <TabsTrigger
-              value="stats"
-              className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="stats" className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white">
               <BarChart className="w-5 h-5 mr-2" />
               Stats
             </TabsTrigger>
-            <TabsTrigger
-              value="achievements"
-              className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="achievements" className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white">
               <Trophy className="w-5 h-5 mr-2" />
               Achievements
             </TabsTrigger>
@@ -170,5 +134,15 @@ export default function PlayerProfile() {
         </Tabs>
       </motion.div>
     </div>
+  );
+}
+
+export default function PlayerProfile({ searchParams }: { searchParams: { id: string } }) {
+  const id = searchParams.id;
+
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      {id && <PlayerProfileContent id={id} />}
+    </Suspense>
   );
 }

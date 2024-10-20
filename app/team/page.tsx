@@ -1,7 +1,7 @@
 "use client";
+export const dynamic = 'force-dynamic';
+import React, { useEffect, useState, Suspense } from "react";
 
-import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,8 +32,9 @@ import { getYears } from "../helpers/years";
 import { getLabels } from "../helpers/labels";
 import { TeamImage } from "./components/TeamImage";
 import Link from "next/link";
+
 const PlayerCard: React.FC<{ player: PlayerStats }> = ({ player }) => (
-  <Card className="bg-[#1e1e1e] border-none hover:bg-[#2a2a2a] transition-all duration-300 group grid-rows-auto-1fr">
+  <Card className="bg-[#1e1e1e] border-none hover:bg-[#2a2a2a] transition-all duration-300 group-rows-auto-1fr">
     <img
       src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.nba_id}.png`}
       alt={player.name}
@@ -88,13 +89,11 @@ const PlayerStatsDialog: React.FC<{
   );
 };
 
-export default function TeamProfile() {
+function TeamProfileContent({ id }: { id: string }) {
   const [teamInfo, setTeamInfo] = useState<TeamStats | null>(null);
   const [playersStats, setPlayersStats] = useState<PlayerStats[] | null>(null);
   const [selectedYear, setSelectedYear] = useState("2021-2022");
   const years: string[] = getYears();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
 
   useEffect(() => {
     if (id) {
@@ -192,5 +191,15 @@ export default function TeamProfile() {
         </Tabs>
       </motion.div>
     </div>
+  );
+}
+
+export default function TeamProfile({ searchParams }: { searchParams: { id: string } }) {
+  const id = searchParams.id;
+
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      {id && <TeamProfileContent id={id} />}
+    </Suspense>
   );
 }

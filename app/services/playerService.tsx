@@ -3,18 +3,15 @@ import { fetchData } from "../helpers/fetchHelper";
 import { ChampionshipsType, MVPType, PlayerData, PlayerStats } from "../types/types";
 export const fetchPlayerData = async (playerId: number) => {
   const playerInfo: PlayerData = await fetchData(`player/${playerId}`);
-  console.log(playerInfo);
   return playerInfo;
 };
 
 export const fetchPlayerStats = async (playerId: number, year: string) => {
-  console.log(playerId, year);
   const data = await fetchData(`player/stats/${playerId}/${year}`);
   if (data.length === 0) {  
     return null;
   }
   const playerStats = data.find((elem: PlayerStats) => elem.team === "TOT") || data[0];
-  console.log(playerStats);
   const formattedStats: PlayerStats = {
     stats: {
       games: playerStats.games,
@@ -44,7 +41,6 @@ export const fetchPlayerStats = async (playerId: number, year: string) => {
       ft_percentage: playerStats.ft_percentage,
     },
   };
-  console.log(formattedStats);
   return formattedStats;
 };
 

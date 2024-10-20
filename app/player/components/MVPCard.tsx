@@ -8,7 +8,6 @@ interface MVPCardProps {
   mvpYears: MVPType[];
 }
 export const MVPCard = ({ mvpYears }: MVPCardProps) => {
-  console.log(mvpYears);
   return (
     <Card className="bg-[#1e1e1e] border-none  transition-all duration-300 justify-self-start">
       <CardContent className="p-4 flex flex-col items-center">

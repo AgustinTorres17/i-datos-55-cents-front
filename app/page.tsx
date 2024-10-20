@@ -5,7 +5,6 @@ import { Leading } from "@/components/typography/Leading";
 import { PlayerData, TeamData } from "./types/types";
 import { useEffect, useState } from "react";
 import { fetchBestPlayers } from "./services/playerService";
-import { s } from "framer-motion/client";
 import { fetchBestTeams } from "./services/teamService";
 
 export default function Home() {
