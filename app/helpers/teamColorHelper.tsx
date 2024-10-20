@@ -33,7 +33,6 @@ const nbaTeams: { id: number; color: string }[] = [
 ];
 
 export const getTeamColor = (teamId: number): string => {
-  console.log(`Fetching color for team ${teamId}`);
   const team = nbaTeams.find((team) => team.id === teamId);
   return team ? team.color : "bg-gray-500";
 };

@@ -1,38 +1,51 @@
 // playerService.tsx
-
+import { fetchData } from "../helpers/fetchHelper";
+import { ChampionshipsType, MVPType, PlayerData, PlayerStats } from "../types/types";
 export const fetchPlayerData = async (playerId: number) => {
-  // Por ahora, la función retorna los datos estáticos que ya tenemos
-  const playerInfo = {
-    id: playerId,
-    name: "Lebron James",
-    team: "Los Angeles Lakers",
-    position: "Small Forward",
-    number: "6",
-    height: "6'9\"",
-    weight: "250 lbs",
-    born: "December 30, 1984",
-    stats: {
-      points: 27.2,
-      assists: 7.3,
-      rebounds: 7.5,
-      offRebounds: 1.2,
-      defRebounds: 6.3,
-      steals: 1.6,
-      blocks: 0.7,
-      turnovers: 4.0,
-      fouls: 2.3,
-      minutes: 36.4,
-      fieldGoals: "44.0 %",
-      threePoints: "35.0 %",
-      freeThrows: "85.0 %",
-    },
-    hasMvp: true,
-    mvpYear: [2009, 2010, 2012, 2013, 2016, 2018],
-    trophies: true,
-    trophyYear: [2012, 2013, 2016, 2020],
-  };
-
+  const playerInfo: PlayerData = await fetchData(`player/${playerId}`);
+  console.log(playerInfo);
   return playerInfo;
+};
+
+export const fetchPlayerStats = async (playerId: number, year: string) => {
+  console.log(playerId, year);
+  const data = await fetchData(`player/stats/${playerId}/${year}`);
+  if (data.length === 0) {  
+    return null;
+  }
+  const playerStats = data.find((elem: PlayerStats) => elem.team === "TOT") || data[0];
+  console.log(playerStats);
+  const formattedStats: PlayerStats = {
+    stats: {
+      games: playerStats.games,
+      games_started: playerStats.games_started,
+      minutes_played: playerStats.minutes_played,
+      pts: playerStats.pts,
+      ast: playerStats.ast,
+      trb: playerStats.trb,
+      fg: playerStats.fg,
+      fga: playerStats.fga,
+      fg_percentage: playerStats.fg_percentage,
+      three_points: playerStats.three_points,
+      three_pa: playerStats.three_pa,
+      three_p_percentage: playerStats.three_p_percentage,
+      orb: playerStats.orb,
+      drb: playerStats.drb,
+      stl: playerStats.stl,
+      blk: playerStats.blk,
+      tov: playerStats.tov,
+      pf: playerStats.pf,
+      two_points: playerStats.two_points,
+      two_pa: playerStats.two_pa,
+      two_p_percentage: playerStats.two_p_percentage,
+      efg_percentage: playerStats.efg_percentage,
+      ft: playerStats.ft,
+      fta: playerStats.fta,
+      ft_percentage: playerStats.ft_percentage,
+    },
+  };
+  console.log(formattedStats);
+  return formattedStats;
 };
 
 export const fetchBestPlayers = async () => {
@@ -44,3 +57,30 @@ export const fetchBestPlayers = async () => {
     console.error("Error fetching best players", error);
   }
 };
+
+export const fetchPlayerMVPs = async (id: number) => {
+  try {
+    const data: MVPType[] = await fetchData(`/mvps/${id}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching player mvps", error);
+  }
+}
+
+export const fetchPlayerChamps = async (id: number) => {
+  try {
+    const data: ChampionshipsType[] = await fetchData(`player/championships/${id}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching player championships", error);
+  }
+}
+
+export const fetchPlayerConferenceChamps = async (id: number) => {
+  try {
+    const data: ChampionshipsType[] = await fetchData(`player/conference_championships/${id}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching player conference championships", error);
+  }
+}

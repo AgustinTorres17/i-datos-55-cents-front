@@ -19,7 +19,7 @@ export const Players = ({ players }: PlayersProps) => {
   return (
     <div className="space-y-6">
       <motion.div
-        className="grid grid-cols-5 gap-5"
+        className="grid md:grid-cols-5 gap-5"
         initial="hidden"
         animate="visible"
         variants={{

@@ -8,40 +8,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Trophy } from "lucide-react";
 import { Leading } from "@/components/typography/Leading";
-import { fetchPlayerData } from "@/app/services/playerService";
+import {
+  fetchPlayerData,
+  fetchPlayerStats,
+} from "@/app/services/playerService";
 import { useSearchParams } from "next/navigation";
-
-interface PlayerStats {
-  points: number;
-  assists: number;
-  rebounds: number;
-  offRebounds: number;
-  defRebounds: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
-  minutes: number;
-  fieldGoals: string;
-  threePoints: string;
-  freeThrows: string;
-}
-
-interface PlayerInfo {
-  id: number;
-  name: string;
-  team: string;
-  position: string;
-  number: string;
-  height: string;
-  weight: string;
-  born: string;
-  stats: PlayerStats;
-  hasMvp: boolean;
-  mvpYear: number[];
-  trophies: boolean;
-  trophyYear: number[];
-}
+import { PlayerData } from "../types/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getYears } from "../helpers/years";
+import { PlayerStats } from "../types/types";
+import { getLabels } from "../helpers/labels";
+import { div } from "framer-motion/client";
+import { Achievements } from "./components/Achievements";
 
 const StatCard: React.FC<{ title: string; value: number | string }> = ({
   title,
@@ -51,77 +35,46 @@ const StatCard: React.FC<{ title: string; value: number | string }> = ({
     <CardContent className="p-4">
       <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
       <p className="text-3xl font-bold text-white">
-        {typeof value === "string" ? value : value.toFixed(1)}
+        {typeof value === "string" ? value : value === null ? "-" : value.toFixed(1)}
       </p>
     </CardContent>
   </Card>
 );
 
-const MVPCard: React.FC<{ mvpYears: number[] }> = ({ mvpYears }) => {
-  return (
-    <Card className="bg-[#1e1e1e] border-none  transition-all duration-300">
-      <CardContent className="p-4 flex flex-col items-center">
-        <Trophy className="w-12 h-12 text-yellow-400 mb-2" />
-        <Leading variant="h2" className="text-2xl font-bold mb-2">
-          MVP
-        </Leading>
-        <div className="flex flex-wrap justify-center gap-2">
-          {mvpYears.map((year) => (
-            <span
-              key={year}
-              className="bg-yellow-400 text-black px-3 py-1 rounded-full font-bold"
-            >
-              {year}
-            </span>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-interface Trophy {
-  year: number;
-}
-
-const TrophyCard: React.FC<{ trophies: Trophy[] }> = ({ trophies }) => {
-  return (
-    <Card className="bg-[#1e1e1e] border-none  transition-all duration-300">
-      <CardContent className="p-4 flex flex-col items-center">
-        <Trophy className="w-12 h-12 text-blue-400 mb-2" />
-        <Leading variant="h2" className="text-2xl font-bold mb-2">
-          NBA Champion
-        </Leading>
-        <div className="flex flex-wrap justify-center gap-2">
-          {trophies.map((trophy, index) => (
-            <span
-              key={index}
-              className="bg-blue-400 text-black px-3 py-1 rounded-full font-bold"
-            >
-              {trophy.year}
-            </span>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
 export default function PlayerProfile() {
-  const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
+  const [playerInfo, setPlayerInfo] = useState<PlayerData | null>(null);
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
+  const [selectedYear, setSelectedYear] = useState("2021-2022");
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  console.log(id);
+  const years: string[] = getYears();
 
   useEffect(() => {
     if (id) {
       const getPlayerData = async () => {
-        const data = await fetchPlayerData(Number(id));
+        const data: PlayerData = await fetchPlayerData(Number(id));
         setPlayerInfo(data);
       };
       getPlayerData();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (playerInfo && id) {
+      const getPlayerStats = async () => {
+        const data: PlayerStats | null = await fetchPlayerStats(
+          Number(id),
+          selectedYear
+        );
+        if (data !== null) {
+          setPlayerStats(data);
+        } else {
+          setPlayerStats(null);
+        }
+      };
+      getPlayerStats();
+    }
+  }, [playerInfo, selectedYear, id]);
 
   if (!playerInfo) {
     return (
@@ -149,7 +102,7 @@ export default function PlayerProfile() {
             initial={{ scale: 0.8, opacity: 0, backgroundColor: "#121212" }}
             animate={{ scale: 1, opacity: 1, backgroundColor: "#1e1e1e" }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            src="https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png"
+            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${playerInfo.nba_id}.png`}
             alt={playerInfo.name}
             className="w-40 h-40 rounded-full object-cover mr-6"
           />
@@ -157,8 +110,25 @@ export default function PlayerProfile() {
             <h1 className="text-4xl font-bold mb-2">{playerInfo.name}</h1>
             <p className="text-xl text-white mb-1">{playerInfo.team}</p>
             <p className="text-lg text-zinc-500">
-              {playerInfo.position} | #{playerInfo.number}
+              {/* {playerInfo.position} | #{playerInfo.number} */}
             </p>
+            <div>
+              <Select
+                defaultValue={selectedYear.toString()}
+                onValueChange={(value) => setSelectedYear(value)}
+              >
+                <SelectTrigger className="w-[180px] bg-negro-900/30">
+                  <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent className="bg-header border-none text-white z-50 relative">
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year} className="bg-header">
+                      {year} Season
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -180,33 +150,22 @@ export default function PlayerProfile() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="stats" className="mt-6">
-            <div className="grid grid-cols-3 gap-4">
-              <StatCard title="PPG" value={playerInfo.stats.points} />
-              <StatCard title="APG" value={playerInfo.stats.assists} />
-              <StatCard title="RPG" value={playerInfo.stats.rebounds} />
-              <StatCard title="OFF RPG" value={playerInfo.stats.offRebounds} />
-              <StatCard title="DEF RPG" value={playerInfo.stats.defRebounds} />
-              <StatCard title="STL" value={playerInfo.stats.steals} />
-              <StatCard title="BLK" value={playerInfo.stats.blocks} />
-              <StatCard title="TO" value={playerInfo.stats.turnovers} />
-              <StatCard title="PF" value={playerInfo.stats.fouls} />
-              <StatCard title="MIN" value={playerInfo.stats.minutes} />
-              <StatCard title="FG%" value={playerInfo.stats.fieldGoals} />
-              <StatCard title="3P%" value={playerInfo.stats.threePoints} />
-              <StatCard title="FT%" value={playerInfo.stats.freeThrows} />
+            <div className="grid md:grid-cols-3 gap-4 w-full">
+              {playerStats &&
+                Object.entries(playerStats.stats).map(([key, value], index) => (
+                  <StatCard key={index} title={getLabels(key)} value={value} />
+                ))}
             </div>
+            {playerStats === null && (
+              <div className="h-[500px] w-full flex justify-center items-center">
+                <Leading variant="h2" className="text-2xl font-bold text-white">
+                  No stats available
+                </Leading>
+              </div>
+            )}
           </TabsContent>
           <TabsContent value="achievements" className="mt-6">
-            <Card className="bg-[#1e1e1e] border-none ">
-              <CardContent className="p-6 w-full grid grid-cols-2">
-                {playerInfo.hasMvp && <MVPCard mvpYears={playerInfo.mvpYear} />}
-                {playerInfo.trophies && (
-                  <TrophyCard
-                    trophies={playerInfo.trophyYear.map((year) => ({ year }))}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            <Achievements id={Number(id)} />
           </TabsContent>
         </Tabs>
       </motion.div>

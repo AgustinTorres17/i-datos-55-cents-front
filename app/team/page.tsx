@@ -20,50 +20,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trophy, User } from "lucide-react";
-import { Leading } from "@/components/typography/Leading";
-import { fetchTeamData } from "@/app/services/teamService";
+import {
+  fetchTeamData,
+  fetchTeamPlayersData,
+} from "@/app/services/teamService";
 import { getTeamColor } from "../helpers/teamColorHelper";
-
-interface PlayerStats {
-  points: number;
-  assists: number;
-  rebounds: number;
-}
-
-interface Player {
-  id: number;
-  name: string;
-  position: string;
-  number: string;
-  stats: PlayerStats;
-  image: string;
-}
-
-interface TeamInfo {
-  id: number;
-  name: string;
-  logo: string;
-  players: { [year: number]: Player[] };
-  championships: number[];
-}
-
-const PlayerCard: React.FC<{ player: Player }> = ({ player }) => (
-  <Card className="bg-[#1e1e1e] border-none hover:bg-[#2a2a2a] transition-all duration-300 group">
+import { TeamStats, PlayerStats } from "../types/types";
+import { ChampionshipCard } from "./components/ChampionshipCard";
+import { ConferenceCard } from "./components/ConferenceCard";
+import { getYears } from "../helpers/years";
+import { getLabels } from "../helpers/labels";
+import { TeamImage } from "./components/TeamImage";
+import Link from "next/link";
+const PlayerCard: React.FC<{ player: PlayerStats }> = ({ player }) => (
+  <Card className="bg-[#1e1e1e] border-none hover:bg-[#2a2a2a] transition-all duration-300 group grid-rows-auto-1fr">
     <img
-      src={player.image}
+      src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.nba_id}.png`}
       alt={player.name}
       className="w-full h-48 object-cover"
     />
-    <CardContent className={`p-4 bg-zinc-900 rounded-b-xl`}>
+    <CardContent className={`p-4 bg-zinc-900 rounded-b-xl h-full`}>
       <h3 className="text-lg font-semibold text-white mb-1">{player.name}</h3>
-      <p className="text-sm text-gray-400">
-        {player.position} | #{player.number}
-      </p>
+      <p className="text-sm text-gray-400">{player.position}</p>
     </CardContent>
   </Card>
 );
 
-const PlayerStatsDialog: React.FC<{ player: Player, year: number, teamId: number }> = ({ player, year, teamId }) => {
+const PlayerStatsDialog: React.FC<{
+  player: PlayerStats;
+  year: string;
+  teamId: number;
+}> = ({ player, year, teamId }) => {
   const teamBackground = getTeamColor(teamId);
   return (
     <Dialog>
@@ -74,70 +61,38 @@ const PlayerStatsDialog: React.FC<{ player: Player, year: number, teamId: number
       </DialogTrigger>
       <DialogContent className="bg-[#1e1e1e] text-white flex flex-col items-center">
         <DialogHeader>
-          <DialogTitle>{player.name} - {year} Stats</DialogTitle>
+          <DialogTitle>
+            {player.name} - {year} Stats
+          </DialogTitle>
         </DialogHeader>
-        <div
+        <Link
+          href={`/player?id=${player.id}`}
           className={`w-48 h-48 rounded-full ${teamBackground} overflow-hidden`}
         >
           <img
-            src={player.image}
+            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.nba_id}.png`}
             alt={player.name}
             className="w-full h-full object-cover"
           />
-        </div>
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold">
-              {player.stats.points.toFixed(1)}
-            </p>
-            <p className="text-sm text-gray-400">PPG</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold">
-              {player.stats.assists.toFixed(1)}
-            </p>
-            <p className="text-sm text-gray-400">APG</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold">
-              {player.stats.rebounds.toFixed(1)}
-            </p>
-            <p className="text-sm text-gray-400">RPG</p>
-          </div>
+        </Link>
+        <div className="grid md:grid-cols-5 gap-4 mt-4">
+          {Object.entries(player.stats).map(([key, value], index) => (
+            <div key={index} className="text-center">
+              <p className="text-2xl font-bold">{value === null ? "-" : value}</p>
+              <p className="text-sm text-gray-400">{getLabels(key)}</p>
+            </div>
+          ))}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-const ChampionshipCard: React.FC<{ championships: number[] }> = ({
-  championships,
-}) => (
-  <Card className="bg-[#1e1e1e] border-none transition-all duration-300">
-    <CardContent className="p-4 flex flex-col items-center gap-2">
-      <div className="flex flex-col items-center">
-        <Trophy className="w-12 h-12 text-yellow-400 mb-2" />
-        <Leading variant="h2" className="text-2xl font-bold mb-2">
-          NBA Championships
-        </Leading>
-      </div>
-      <div className="flex flex-wrap justify-center gap-2">
-        {championships.map((year) => (
-          <span
-            key={year}
-            className="bg-yellow-400 text-black px-3 py-1 rounded-full font-bold"
-          >
-            {year}
-          </span>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-);
-
 export default function TeamProfile() {
-  const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
-  const [selectedYear, setSelectedYear] = useState(2023);
+  const [teamInfo, setTeamInfo] = useState<TeamStats | null>(null);
+  const [playersStats, setPlayersStats] = useState<PlayerStats[] | null>(null);
+  const [selectedYear, setSelectedYear] = useState("2021-2022");
+  const years: string[] = getYears();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -145,11 +100,17 @@ export default function TeamProfile() {
     if (id) {
       const getTeamData = async () => {
         const data = await fetchTeamData(Number(id), selectedYear);
-        setTeamInfo(data);
+        if (data) {
+          setTeamInfo(data);
+          const players = await fetchTeamPlayersData(Number(id), selectedYear);
+          if (players) setPlayersStats(players);
+        } else {
+          console.error("Failed to fetch team data");
+        }
       };
       getTeamData();
     }
-  }, [id, selectedYear]);
+  }, [selectedYear, id]);
 
   if (!teamInfo) {
     return (
@@ -173,25 +134,18 @@ export default function TeamProfile() {
         className="max-w-4xl mx-auto"
       >
         <div className="flex items-center mb-8">
-          <motion.img
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            src={teamInfo.logo}
-            alt={teamInfo.name}
-            className="w-40 h-40 object-contain mr-6"
-          />
+          <TeamImage id={Number(id)} />
           <div>
             <h1 className="text-4xl font-bold mb-2">{teamInfo.name}</h1>
             <Select
               defaultValue={selectedYear.toString()}
-              onValueChange={(value) => setSelectedYear(parseInt(value))}
+              onValueChange={(value) => setSelectedYear(value)}
             >
               <SelectTrigger className="w-[180px] bg-negro-900/30">
                 <SelectValue placeholder="Select Year" />
               </SelectTrigger>
               <SelectContent className="bg-header border-none text-white z-50 relative">
-                {Object.keys(teamInfo.players).map((year) => (
+                {years.map((year) => (
                   <SelectItem key={year} value={year} className="bg-header">
                     {year} Season
                   </SelectItem>
@@ -219,14 +173,21 @@ export default function TeamProfile() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="team" className="mt-6 w-full">
-            <div className="grid grid-cols-4 gap-4">
-              {teamInfo.players[selectedYear].map((player) => (
-                <PlayerStatsDialog key={player.id} player={player} year={selectedYear} teamId={Number(id)}/>
-              ))}
+            <div className="grid md:grid-cols-4 gap-4">
+              {playersStats &&
+                playersStats.map((player) => (
+                  <PlayerStatsDialog
+                    key={player.id}
+                    player={player}
+                    year={selectedYear}
+                    teamId={Number(id)}
+                  />
+                ))}
             </div>
           </TabsContent>
-          <TabsContent value="achievements" className="mt-6">
-            <ChampionshipCard championships={teamInfo.championships} />
+          <TabsContent value="achievements" className="space-y-6 mt-6">
+            <ChampionshipCard id={teamInfo.id} />
+            <ConferenceCard id={teamInfo.id} />
           </TabsContent>
         </Tabs>
       </motion.div>

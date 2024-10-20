@@ -16,7 +16,6 @@ export default function Home() {
     const fetchBestPlayersHome = async () => {
       const bestPlayers = await fetchBestPlayers();
       setNbaPlayers(bestPlayers);
-      console.log(bestPlayers);
     };
     fetchBestPlayersHome();
   }, []);
@@ -25,7 +24,7 @@ export default function Home() {
     const fetchBestTeamsHome = async () => {
       const bestTeams = await fetchBestTeams();
       setNbaTeams(bestTeams);
-      console.log(bestTeams);
+
     };
     fetchBestTeamsHome();
   }, []);
