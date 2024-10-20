@@ -50,7 +50,8 @@ export const fetchPlayerStats = async (playerId: number, year: string) => {
 
 export const fetchBestPlayers = async () => {
   try {
-    const response = await fetch("http://localhost:31234/api/best_players");
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:31234';
+    const response = await fetch(`${BACKEND_URL}/api/best_players`);
     const data = await response.json();
     return data;
   } catch (error) {

@@ -1,6 +1,7 @@
 export const fetchData = async (url: string) => {
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:31234';
     try {
-        const response = await fetch(`http://localhost:31234/api/${url}`);
+        const response = await fetch(`${BACKEND_URL}/api/${url}`);
         if (!response.ok) {
             throw new Error(`Error fetching data: ${response.statusText}`);
         }
@@ -13,8 +14,8 @@ export const fetchData = async (url: string) => {
 
 export const postData = async (url: string, data: any) => {
     try {
-
-        const response = await fetch(`http://localhost:31234/api/${url}`, {
+        const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:31234';
+        const response = await fetch(`${BACKEND_URL}/api/${url}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
