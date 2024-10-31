@@ -82,6 +82,30 @@ export type TeamStats = {
   abreviation: string;
 };
 
+export type TeamInfo = {
+  games: number;
+  fg: number;
+  fga: number;
+  fg_percentage: number;
+  three_points: number;
+  three_pa: number;
+  three_p_percentage: number;
+  ft: number;
+  fta: number;
+  ft_percentage: number;
+  orb: number;
+  drb: number;
+  trb: number;
+  ast: number;
+  stl: number;
+  blk: number;
+  tov: number;
+  pf: number;
+  pts: number;
+  eff: number;
+  deff: number;
+}
+
 export type ChampionshipsType = {
   idteam: number;
   year: string;

@@ -1,5 +1,5 @@
 "use client";
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import React, { useEffect, useState, Suspense } from "react";
 
 import { motion } from "framer-motion";
@@ -19,13 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trophy, User } from "lucide-react";
+import { Trophy, User, Users } from "lucide-react";
 import {
   fetchTeamData,
   fetchTeamPlayersData,
 } from "@/app/services/teamService";
 import { getTeamColor } from "../helpers/teamColorHelper";
-import { TeamStats, PlayerStats } from "../types/types";
+import { TeamStats, PlayerStats, TeamInfo } from "../types/types";
 import { ChampionshipCard } from "./components/ChampionshipCard";
 import { ConferenceCard } from "./components/ConferenceCard";
 import { getYears } from "../helpers/years";
@@ -46,6 +46,18 @@ const PlayerCard: React.FC<{ player: PlayerStats }> = ({ player }) => (
     </CardContent>
   </Card>
 );
+
+const StatCard: React.FC<{ title: string; value: number | string }> = ({ title, value }) => (
+  <Card className="bg-[#1e1e1e] border-none hover:bg-negro-900 transition-all duration-300">
+    <CardContent className="p-4">
+      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <p className="text-3xl font-bold text-white">
+        {typeof value === "string" ? value : value === null ? "-" : value.toFixed(1)}
+      </p>
+    </CardContent>
+  </Card>
+);
+
 
 const PlayerStatsDialog: React.FC<{
   player: PlayerStats;
@@ -79,7 +91,9 @@ const PlayerStatsDialog: React.FC<{
         <div className="grid md:grid-cols-5 gap-4 mt-4">
           {Object.entries(player.stats).map(([key, value], index) => (
             <div key={index} className="text-center">
-              <p className="text-2xl font-bold">{value === null ? "-" : value}</p>
+              <p className="text-2xl font-bold">
+                {value === null ? "-" : value}
+              </p>
               <p className="text-sm text-gray-400">{getLabels(key)}</p>
             </div>
           ))}
@@ -90,9 +104,10 @@ const PlayerStatsDialog: React.FC<{
 };
 
 function TeamProfileContent({ id }: { id: string }) {
-  const [teamInfo, setTeamInfo] = useState<TeamStats | null>(null);
+  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [playersStats, setPlayersStats] = useState<PlayerStats[] | null>(null);
   const [selectedYear, setSelectedYear] = useState("2021-2022");
+  const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
   const years: string[] = getYears();
 
   useEffect(() => {
@@ -100,7 +115,30 @@ function TeamProfileContent({ id }: { id: string }) {
       const getTeamData = async () => {
         const data = await fetchTeamData(Number(id), selectedYear);
         if (data) {
-          setTeamInfo(data);
+          setTeamStats(data);
+          setTeamInfo({
+            games: data.games,
+            fg: data.fg,
+            fga: data.fga,
+            fg_percentage: data.fg_percentage,
+            three_points: data.three_points,
+            three_pa: data.three_pa,
+            three_p_percentage: data.three_p_percentage,
+            ft: data.ft,
+            fta: data.fta,
+            ft_percentage: data.ft_percentage,
+            orb: data.orb,
+            drb: data.drb,
+            trb: data.trb,
+            ast: data.ast,
+            stl: data.stl,
+            blk: data.blk,
+            tov: data.tov,
+            pf: data.pf,
+            pts: data.pts,
+            eff: data.eff,
+            deff: data.deff,
+          }) 
           const players = await fetchTeamPlayersData(Number(id), selectedYear);
           if (players) setPlayersStats(players);
         } else {
@@ -111,7 +149,7 @@ function TeamProfileContent({ id }: { id: string }) {
     }
   }, [selectedYear, id]);
 
-  if (!teamInfo) {
+  if (!teamStats) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <img
@@ -135,7 +173,7 @@ function TeamProfileContent({ id }: { id: string }) {
         <div className="flex items-center mb-8">
           <TeamImage id={Number(id)} />
           <div>
-            <h1 className="text-4xl font-bold mb-2">{teamInfo.name}</h1>
+            <h1 className="text-4xl font-bold mb-2">{teamStats.name}</h1>
             <Select
               defaultValue={selectedYear.toString()}
               onValueChange={(value) => setSelectedYear(value)}
@@ -155,13 +193,20 @@ function TeamProfileContent({ id }: { id: string }) {
         </div>
 
         <Tabs defaultValue="team" className="w-full ">
-          <TabsList className="grid w-full grid-cols-2 bg-[#1e1e1e] text-zinc-700">
+          <TabsList className="grid w-full grid-cols-3 bg-[#1e1e1e] text-zinc-700">
             <TabsTrigger
               value="team"
               className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white"
             >
+              <Users className="w-5 h-5 mr-2" />
+              Team Stats
+            </TabsTrigger>
+            <TabsTrigger
+              value="players"
+              className="data-[state=active]:bg-[#3a3a3a] data-[state=active]:text-white"
+            >
               <User className="w-5 h-5 mr-2" />
-              Team
+              Players
             </TabsTrigger>
             <TabsTrigger
               value="achievements"
@@ -171,7 +216,15 @@ function TeamProfileContent({ id }: { id: string }) {
               Achievements
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="team" className="mt-6 w-full">
+          <TabsContent value="team">
+          <div className="grid md:grid-cols-3 gap-4 w-full">
+              {teamInfo &&
+                Object.entries(teamInfo).map(([key, value], index) => (
+                  <StatCard key={index} title={getLabels(key)} value={value} />
+                ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="players" className="mt-6 w-full">
             <div className="grid md:grid-cols-4 gap-4">
               {playersStats &&
                 playersStats.map((player) => (
@@ -185,8 +238,8 @@ function TeamProfileContent({ id }: { id: string }) {
             </div>
           </TabsContent>
           <TabsContent value="achievements" className="space-y-6 mt-6">
-            <ChampionshipCard id={teamInfo.id} />
-            <ConferenceCard id={teamInfo.id} />
+            <ChampionshipCard id={teamStats.id} />
+            <ConferenceCard id={teamStats.id} />
           </TabsContent>
         </Tabs>
       </motion.div>
@@ -194,7 +247,11 @@ function TeamProfileContent({ id }: { id: string }) {
   );
 }
 
-export default function TeamProfile({ searchParams }: { searchParams: { id: string } }) {
+export default function TeamProfile({
+  searchParams,
+}: {
+  searchParams: { id: string };
+}) {
   const id = searchParams.id;
 
   return (

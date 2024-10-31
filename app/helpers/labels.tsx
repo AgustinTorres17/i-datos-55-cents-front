@@ -25,6 +25,8 @@ export const getLabels = (key: string): string => {
       ft: "Tiros Libres Encestados",
       fta: "Tiros Libres Intentados",
       ft_percentage: "Porcentaje de Tiros Libres",
+      eff: "Eficiencia",
+      deff: "Eficiencia Defensiva",
     };
   
     return labels[key] || key;
