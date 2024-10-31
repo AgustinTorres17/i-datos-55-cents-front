@@ -74,12 +74,12 @@ import {
   
     return (
       <Card className="bg-[#1e1e1e] border-none">
-        <CardContent className="p-6 w-full grid md:grid-flow-col justify-center gap-5">
+        <CardContent className="p-6 w-full grid md:grid-flow-col justify-center md:justify-between gap-5">
           {playerMVPs.length > 0 && <MVPCard mvpYears={playerMVPs} />}
   
           {playerChamps.length > 0 && (
             <Card className="bg-[#1e1e1e] border-none transition-all duration-300">
-              <CardContent className="p-4 flex flex-col items-center gap-2">
+              <CardContent className="p-4 flex flex-col items-center justify-between">
                 <div className="flex flex-col items-center">
                   <Trophy className="w-12 h-12 text-yellow-400 mb-2" />
                   <Leading variant="h3" className="text-2xl font-bold mb-2">
@@ -102,7 +102,7 @@ import {
   
           {playerConferenceChamps.length > 0 && (
             <Card className="bg-[#1e1e1e] border-none transition-all duration-300">
-              <CardContent className="p-4 flex flex-col items-center gap-2">
+              <CardContent className="p-4 flex flex-col items-center justify-between">
                 <div className="flex flex-col items-center">
                   <Trophy className="w-12 h-12 text-blue-400 mb-2" />
                   <Leading

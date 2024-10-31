@@ -9,8 +9,8 @@ interface MVPCardProps {
 }
 export const MVPCard = ({ mvpYears }: MVPCardProps) => {
   return (
-    <Card className="bg-[#1e1e1e] border-none  transition-all duration-300 justify-self-start">
-      <CardContent className="p-4 flex flex-col items-center">
+    <Card className="bg-[#1e1e1e] border-none  transition-all duration-300 w-full">
+      <CardContent className="p-4 flex flex-col items-center justify-between">
         <Trophy className="w-12 h-12 text-orange-400 mb-2" />
         <Leading variant="h3" className="text-2xl font-bold mb-2">
           MVP
