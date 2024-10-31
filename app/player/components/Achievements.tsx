@@ -74,7 +74,7 @@ import {
   
     return (
       <Card className="bg-[#1e1e1e] border-none">
-        <CardContent className="p-6 w-full grid md:grid-flow-col gap-5">
+        <CardContent className="p-6 w-full grid md:grid-flow-col justify-center gap-5">
           {playerMVPs.length > 0 && <MVPCard mvpYears={playerMVPs} />}
   
           {playerChamps.length > 0 && (

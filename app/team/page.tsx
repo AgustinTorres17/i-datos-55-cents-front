@@ -47,17 +47,23 @@ const PlayerCard: React.FC<{ player: PlayerStats }> = ({ player }) => (
   </Card>
 );
 
-const StatCard: React.FC<{ title: string; value: number | string }> = ({ title, value }) => (
+const StatCard: React.FC<{ title: string; value: number | string }> = ({
+  title,
+  value,
+}) => (
   <Card className="bg-[#1e1e1e] border-none hover:bg-negro-900 transition-all duration-300">
     <CardContent className="p-4">
       <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
       <p className="text-3xl font-bold text-white">
-        {typeof value === "string" ? value : value === null ? "-" : value.toFixed(1)}
+        {typeof value === "string"
+          ? value
+          : value === null
+          ? "-"
+          : value.toFixed(1)}
       </p>
     </CardContent>
   </Card>
 );
-
 
 const PlayerStatsDialog: React.FC<{
   player: PlayerStats;
@@ -138,7 +144,7 @@ function TeamProfileContent({ id }: { id: string }) {
             pts: data.pts,
             eff: data.eff,
             deff: data.deff,
-          }) 
+          });
           const players = await fetchTeamPlayersData(Number(id), selectedYear);
           if (players) setPlayersStats(players);
         } else {
@@ -217,7 +223,7 @@ function TeamProfileContent({ id }: { id: string }) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="team">
-          <div className="grid md:grid-cols-3 gap-4 w-full">
+            <div className="grid md:grid-cols-3 gap-4 w-full">
               {teamInfo &&
                 Object.entries(teamInfo).map(([key, value], index) => (
                   <StatCard key={index} title={getLabels(key)} value={value} />
@@ -225,9 +231,9 @@ function TeamProfileContent({ id }: { id: string }) {
             </div>
           </TabsContent>
           <TabsContent value="players" className="mt-6 w-full">
-            <div className="grid md:grid-cols-4 gap-4">
-              {playersStats &&
-                playersStats.map((player) => (
+            {playersStats && playersStats.length > 0 ? (
+              <div className="grid md:grid-cols-4 gap-4">
+                {playersStats.map((player) => (
                   <PlayerStatsDialog
                     key={player.id}
                     player={player}
@@ -235,7 +241,10 @@ function TeamProfileContent({ id }: { id: string }) {
                     teamId={Number(id)}
                   />
                 ))}
-            </div>
+              </div>
+            ) : (
+              <p className="w-full h-96 flex items-center justify-center text-2xl font-bold">No players found</p>
+            )}
           </TabsContent>
           <TabsContent value="achievements" className="space-y-6 mt-6">
             <ChampionshipCard id={teamStats.id} />

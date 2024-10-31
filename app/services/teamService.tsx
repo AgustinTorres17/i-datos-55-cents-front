@@ -64,7 +64,9 @@ export const fetchTeamData = async (teamId: number, year: string) => {
 
 export const fetchTeamPlayersData = async (teamId: number, year: string) => {
   try {
+    console.log(teamId, year);
     const data = await fetchData(`teams/${teamId}/${year}/players`);
+    console.log(data);
     const formattedData: PlayerStats[] = data.map((player: Player) => {
       return {
         stats: {
